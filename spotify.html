@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="scripts.js" defer></script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Custom animations */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        /* Gradient background */
+        .gradient-bg {
+            background: linear-gradient(180deg, rgba(18,18,18,0.8) 0%, rgba(18,18,18,1) 100%);
+        }
+        
+        /* Play button animation */
+        .play-button {
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+        .card:hover .play-button {
+            opacity: 1;
+            transform: translateY(-5px);
+        }
+        
+        /* Progress bar */
+        .progress-bar {
+            -webkit-appearance: none;
+            height: 4px;
+            background: #535353;
+            border-radius: 2px;
+        }
+        .progress-bar::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .progress-bar:hover::-webkit-slider-thumb {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-black text-white font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:w-64 lg:w-72 flex-col bg-black p-6 space-y-6">
+            <div class="flex items-center space-x-2">
+                <i class="fab fa-spotify text-3xl text-green-500"></i>
+                <span class="text-xl font-bold">Spotify</span>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="text-gray-400 font-medium">MENU</div>
+                <div class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 text-white hover:text-green-500 transition">
+                        <i class="fas fa-home text-xl"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 text-gray-400 hover:text-white transition">
+                        <i class="fas fa-search text-xl"></i>
+                        <span>Search</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 text-gray-400 hover:text-white transition">
+                        <i class="fas fa-book text-xl"></i>
+                        <span>Your Library</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="text-gray-400 font-medium">PLAYLISTS</div>
+                <div class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 text-gray-400 hover:text-white transition">
+                        <i class="fas fa-plus-square text-xl"></i>
+                        <span>Create Playlist</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 text-gray-400 hover:text-white transition">
+                        <i class="fas fa-heart text-xl"></i>
+                        <span>Liked Songs</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-4">
+                <div class="flex items-center space-x-2 text-gray-400 hover:text-white transition cursor-pointer">
+                    <i class="fas fa-download text-xl"></i>
+                    <span>Install App</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="gradient-bg p-6 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button class="md:hidden text-gray-400 hover:text-white">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="relative hidden md:block">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" placeholder="What do you want to listen to?" 
+                               class="bg-white/10 rounded-full pl-10 pr-4 py-2 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-white/50">
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-400 hover:text-white">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2 bg-black/70 rounded-full px-2 py-1 cursor-pointer hover:bg-black/50 transition">
+                        <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center">
+                            <span class="font-bold">U</span>
+                        </div>
+                        <span class="font-medium hidden md:block">User</span>
+                        <i class="fas fa-chevron-down text-xs hidden md:block"></i>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <main class="flex-1 overflow-y-auto p-6 gradient-bg">
+                <div class="space-y-8">
+                    <!-- Recently played section -->
+                    <section>
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-bold">Recently played</h2>
+                            <a href="#" class="text-sm text-gray-400 hover:underline">Show all</a>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                            <!-- Card 1 -->
+                            <div class="card group relative bg-white/10 rounded-md p-4 hover:bg-white/20 transition cursor-pointer">
+                                <div class="relative mb-4">
+                                    <img src="https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228" alt="Album cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold truncate">Happier Than Ever</h3>
+                                <p class="text-sm text-gray-400 truncate">Billie Eilish</p>
+                            </div>
+                            
+                            <!-- Card 2 -->
+                            <div class="card group relative bg-white/10 rounded-md p-4 hover:bg-white/20 transition cursor-pointer">
+                                <div class="relative mb-4">
+                                    <img src="https://i.scdn.co/image/ab67616d00001e02c591d8f54a5c7b4614a5a6b9" alt="Album cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold truncate">Planet Her</h3>
+                                <p class="text-sm text-gray-400 truncate">Doja Cat</p>
+                            </div>
+                            
+                            <!-- Card 3 -->
+                            <div class="card group relative bg-white/10 rounded-md p-4 hover:bg-white/20 transition cursor-pointer">
+                                <div class="relative mb-4">
+                                    <img src="https://i.scdn.co/image/ab67616d00001e02a3e2b0588a32b4e5f3b0a1e5" alt="Album cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold truncate">Sour</h3>
+                                <p class="text-sm text-gray-400 truncate">Olivia Rodrigo</p>
+                            </div>
+                            
+                            <!-- Card 4 -->
+                            <div class="card group relative bg-white/10 rounded-md p-4 hover:bg-white/20 transition cursor-pointer">
+                                <div class="relative mb-4">
+                                    <img src="https://i.scdn.co/image/ab67616d00001e02e6f407c7f3a0ec98845e4431" alt="Album cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold truncate">Justice</h3>
+                                <p class="text-sm text-gray-400 truncate">Justin Bieber</p>
+                            </div>
+                            
+                            <!-- Card 5 -->
+                            <div class="card group relative bg-white/10 rounded-md p-4 hover:bg-white/20 transition cursor-pointer">
+                                <div class="relative mb-4">
+                                    <img src="https://i.scdn.co/image/ab67616d00001e02b1c4b76e23414c9f20242268" alt="Album cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold truncate">Future Nostalgia</h3>
+                                <p class="text-sm text-gray-400 truncate">Dua Lipa</p>
+                            </div>
+                            
+                            <!-- Card 6 -->
+                            <div class="card group relative bg-white/10 rounded-md p-4 hover:bg-white/20 transition cursor-pointer">
+                                <div class="relative mb-4">
+                                    <img src="https://i.scdn.co/image/ab67616d00001e02668e3aca3167e6e569a9aa20" alt="Album cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold truncate">Chromatica</h3>
+                                <p class="text-sm text-gray-400 truncate">Lady Gaga</p>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Made For You section -->
+                    <section>
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-bold">Made For You</h2>
+                            <a href="#" class="text-sm text-gray-400 hover:underline">Show all</a>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <!-- Large card 1 -->
+                            <div class="card group relative bg-gradient-to-br from-purple-900 to-blue-900 rounded-md p-4 hover:bg-white/10 transition cursor-pointer col-span-1">
+                                <div class="relative mb-4">
+                                    <img src="https://misc.scdn.co/liked-songs/liked-songs-640.png" alt="Playlist cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold text-xl truncate">Liked Songs</h3>
+                                <p class="text-sm text-gray-300">Liked songs from Spotify</p>
+                            </div>
+                            
+                            <!-- Large card 2 -->
+                            <div class="card group relative bg-gradient-to-br from-green-900 to-blue-900 rounded-md p-4 hover:bg-white/10 transition cursor-pointer col-span-1">
+                                <div class="relative mb-4">
+                                    <img src="https://dailymix-images.scdn.co/v2/img/ab6761610000e5eb4293385d324db8558179afd9/1/en/default" alt="Playlist cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold text-xl truncate">Daily Mix 1</h3>
+                                <p class="text-sm text-gray-300">Made for you based on your listening habits</p>
+                            </div>
+                            
+                            <!-- Large card 3 -->
+                            <div class="card group relative bg-gradient-to-br from-red-900 to-purple-900 rounded-md p-4 hover:bg-white/10 transition cursor-pointer col-span-1">
+                                <div class="relative mb-4">
+                                    <img src="https://newjams-images.scdn.co/image/ab676477000033ad/dt/v3/discover-weekly/REkDjgQJbgQGNQHj-8kO1Q==/bmVuZW5lbmVuZW5lbmVuZW5lbmVuZQ==" alt="Playlist cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold text-xl truncate">Discover Weekly</h3>
+                                <p class="text-sm text-gray-300">Your weekly mixtape of fresh music</p>
+                            </div>
+                            
+                            <!-- Large card 4 -->
+                            <div class="card group relative bg-gradient-to-br from-yellow-900 to-orange-900 rounded-md p-4 hover:bg-white/10 transition cursor-pointer col-span-1">
+                                <div class="relative mb-4">
+                                    <img src="https://thisis-images.scdn.co/37i9dQZF1EIVoBTSiHHsdx/default.jpg" alt="Playlist cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold text-xl truncate">Release Radar</h3>
+                                <p class="text-sm text-gray-300">Catch all the latest music from artists you follow</p>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Popular albums section -->
+                    <section>
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-bold">Popular albums</h2>
+                            <a href="#" class="text-sm text-gray-400 hover:underline">Show all</a>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                            <!-- Card 1 -->
+                            <div class="card group relative bg-white/10 rounded-md p-4 hover:bg-white/20 transition cursor-pointer">
+                                <div class="relative mb-4">
+                                    <img src="https://i.scdn.co/image/ab67616d00001e02a991995542d50a691b9ae5be" alt="Album cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold truncate">Midnights</h3>
+                                <p class="text-sm text-gray-400 truncate">Taylor Swift</p>
+                            </div>
+                            
+                            <!-- Card 2 -->
+                            <div class="card group relative bg-white/10 rounded-md p-4 hover:bg-white/20 transition cursor-pointer">
+                                <div class="relative mb-4">
+                                    <img src="https://i.scdn.co/image/ab67616d00001e02d5f3e0e22085e5feea8c9f86" alt="Album cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold truncate">Harry's House</h3>
+                                <p class="text-sm text-gray-400 truncate">Harry Styles</p>
+                            </div>
+                            
+                            <!-- Card 3 -->
+                            <div class="card group relative bg-white/10 rounded-md p-4 hover:bg-white/20 transition cursor-pointer">
+                                <div class="relative mb-4">
+                                    <img src="https://i.scdn.co/image/ab67616d00001e02e6f407c7f3a0ec98845e4431" alt="Album cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold truncate">Justice</h3>
+                                <p class="text-sm text-gray-400 truncate">Justin Bieber</p>
+                            </div>
+                            
+                            <!-- Card 4 -->
+                            <div class="card group relative bg-white/10 rounded-md p-4 hover:bg-white/20 transition cursor-pointer">
+                                <div class="relative mb-4">
+                                    <img src="https://i.scdn.co/image/ab67616d00001e02b1c4b76e23414c9f20242268" alt="Album cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold truncate">Future Nostalgia</h3>
+                                <p class="text-sm text-gray-400 truncate">Dua Lipa</p>
+                            </div>
+                            
+                            <!-- Card 5 -->
+                            <div class="card group relative bg-white/10 rounded-md p-4 hover:bg-white/20 transition cursor-pointer">
+                                <div class="relative mb-4">
+                                    <img src="https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228" alt="Album cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold truncate">Happier Than Ever</h3>
+                                <p class="text-sm text-gray-400 truncate">Billie Eilish</p>
+                            </div>
+                            
+                            <!-- Card 6 -->
+                            <div class="card group relative bg-white/10 rounded-md p-4 hover:bg-white/20 transition cursor-pointer">
+                                <div class="relative mb-4">
+                                    <img src="https://i.scdn.co/image/ab67616d00001e02a3e2b0588a32b4e5f3b0a1e5" alt="Album cover" class="w-full aspect-square object-cover rounded shadow-lg">
+                                    <button class="play-button absolute bottom-2 right-2 bg-green-500 rounded-full p-3 shadow-lg hover:bg-green-400 hover:scale-105">
+                                        <i class="fas fa-play text-black"></i>
+                                    </button>
+                                </div>
+                                <h3 class="font-bold truncate">Sour</h3>
+                                <p class="text-sm text-gray-400 truncate">Olivia Rodrigo</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Player bar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-gray-900 to-gray-800 border-t border-gray-700 p-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4 w-1/4">
+            <img src="https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228" alt="Album cover" class="w-14 h-14 rounded">
+            <div>
+                <div class="font-medium">Happier Than Ever</div>
+                <div class="text-xs text-gray-400">Billie Eilish</div>
+            </div>
+            <button class="text-gray-400 hover:text-white">
+                <i class="far fa-heart"></i>
+            </button>
+        </div>
+        
+        <div class="flex flex-col items-center w-2/4">
+            <div class="flex items-center space-x-6">
+                <!-- The rest of the player bar content is missing in the provided code -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
